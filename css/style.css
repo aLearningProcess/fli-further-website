@@ -1375,3 +1375,24 @@ img {
   padding-top: 0;
   border-top: none;
 }
+
+/* ---- Email opt-in: success / error states ---- */
+.ck-success {
+  padding: 1.25rem 1.5rem;
+  background: #f0faf4;
+  border: 1px solid #a3d9b1;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #1a5c32;
+}
+.ck-success p { margin: 0 0 0.25rem; }
+.ck-success p:last-child { margin: 0; }
+.ck-error {
+  padding: 1rem 1.25rem;
+  background: #fff5f5;
+  border: 1px solid #f5c2c2;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #991b1b;
+}
+.ck-error .error-message { margin: 0; font-size: 0.95rem; }

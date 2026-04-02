@@ -163,11 +163,17 @@
       <div class="opt-in-inner">
         <h2>Get the Framework, Free.</h2>
         <p>The Freedom Starter Checklist gives you a clear, actionable starting point — whether you are just beginning to explore financial independence or already making moves. No vague inspiration. No 47-step system. Just the actual starting framework.</p>
-        <form class="opt-in-form opt-in-form--wide" onsubmit="return false;">
-          <input type="text" placeholder="First name" aria-label="First name" required>
-          <input type="email" placeholder="Your email address" aria-label="Email address" required>
+        <form id="ck-form-home" class="opt-in-form opt-in-form--wide" data-ck-form="ck-form-home">
+          <input type="text" name="fname" placeholder="First name" aria-label="First name" required>
+          <input type="email" name="email" placeholder="Your email address" aria-label="Email address" required>
           <button type="submit" class="btn btn-primary">Send Me the Checklist →</button>
         </form>
+        <div data-ck-success="ck-form-home" hidden style="display:none;" class="ck-success opt-in-success">
+          <p><strong>You are in.</strong> Check your inbox — the checklist is on its way.</p>
+        </div>
+        <div data-ck-error="ck-form-home" hidden style="display:none;" class="ck-error">
+          <p class="error-message">Something went wrong. Please try again.</p>
+        </div>
         <p class="opt-in-trust">Join [X,XXX]+ people already working toward their version of freedom. No spam. Unsubscribe anytime.</p>
       </div>
     </div>
@@ -228,6 +234,7 @@
       document.getElementById('navLinks').classList.toggle('active');
     });
   </script>
+  <script src="js/email.js"></script>
 
 </body>
 </html>

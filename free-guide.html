@@ -28,7 +28,7 @@
       </div>
       <div class="lp-form-box" id="opt-in">
         <h2>Send me the checklist</h2>
-        <form class="lp-form" onsubmit="return false;">
+        <form id="ck-form-free-guide" class="lp-form" data-ck-form="ck-form-free-guide">
           <div class="form-group">
             <label for="fname">First Name</label>
             <input type="text" id="fname" name="fname" placeholder="Your first name" required>
@@ -39,6 +39,13 @@
           </div>
           <button type="submit" class="btn btn-primary btn-full">Send me the checklist →</button>
         </form>
+        <div data-ck-success="ck-form-free-guide" hidden style="display:none;" class="ck-success">
+          <p><strong>You are in.</strong> Check your inbox — the checklist is on its way.</p>
+          <p class="lp-trust">If it does not arrive in a few minutes, check your spam folder.</p>
+        </div>
+        <div data-ck-error="ck-form-free-guide" hidden style="display:none;" class="ck-error">
+          <p class="error-message">Something went wrong. Please try again.</p>
+        </div>
         <p class="lp-trust">No spam. You will receive the checklist instantly, then a weekly email with practical freedom strategies. Unsubscribe any time.</p>
       </div>
     </div>
@@ -115,5 +122,6 @@
     </div>
   </footer>
 
+  <script src="js/email.js"></script>
 </body>
 </html>
