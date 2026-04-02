@@ -950,6 +950,82 @@ img {
   color: var(--white);
 }
 
+/* ---- About Page ---- */
+.founder-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+.founder-photo {
+  background: var(--green);
+  border-radius: 8px;
+  aspect-ratio: 3/4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.founder-bio h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin: 0.75rem 0 1.5rem;
+}
+
+.founder-placeholder-note {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--gray);
+  font-style: italic;
+}
+
+.founder-copy {
+  color: var(--gray);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.founder-sig {
+  color: var(--green-dark);
+  font-weight: 600;
+  margin-top: 2rem;
+  line-height: 1.6;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.value-belief {
+  padding: 2rem;
+  border: 1px solid var(--gray-light);
+  border-radius: 8px;
+  background: var(--off-white);
+}
+
+.value-belief h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 0.75rem;
+}
+
+.value-belief p {
+  color: var(--gray);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
 /* ---- Nav active link ---- */
 .nav-links a.active {
   color: var(--green);
@@ -1055,6 +1131,15 @@ img {
   }
 
   .lp-benefits .benefits-list {
+    grid-template-columns: 1fr;
+  }
+
+  .founder-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .values-grid {
     grid-template-columns: 1fr;
   }
 }
