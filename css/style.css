@@ -1045,4 +1045,248 @@ img {
   .section {
     padding: 4rem 1.5rem;
   }
+
+  .lp-hero-inner {
+    flex-direction: column;
+  }
+
+  .lp-form-box {
+    width: 100%;
+  }
+
+  .lp-benefits .benefits-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   Landing Page — /free-guide
+   ============================================ */
+
+.landing-page .nav--minimal {
+  justify-content: center;
+}
+
+.lp-hero {
+  margin-top: 72px;
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%);
+  color: var(--white);
+  padding: 5rem 2rem;
+}
+
+.lp-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4rem;
+  align-items: flex-start;
+}
+
+.lp-hero-copy {
+  flex: 1;
+  padding-top: 1rem;
+}
+
+.lp-badge {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.9rem;
+  border-radius: 2px;
+  margin-bottom: 1.25rem;
+}
+
+.lp-hero-copy h1 {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  letter-spacing: -0.03em;
+}
+
+.lp-sub {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  opacity: 0.95;
+}
+
+.lp-hero-copy p {
+  font-size: 1rem;
+  opacity: 0.85;
+  line-height: 1.75;
+}
+
+/* ---- Opt-in form box ---- */
+.lp-form-box {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 2.5rem;
+  width: 400px;
+  flex-shrink: 0;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.lp-form-box h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--green-dark);
+  margin-bottom: 1.5rem;
+}
+
+.lp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--black);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-group input {
+  padding: 0.875rem 1rem;
+  border: 1.5px solid var(--gray-light);
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--black);
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.btn-full {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.lp-trust {
+  font-size: 0.8rem;
+  color: var(--gray);
+  line-height: 1.6;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* ---- Benefits section ---- */
+.lp-benefits {
+  background: var(--off-white);
+}
+
+.benefits-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.benefit-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.benefit-check {
+  width: 36px;
+  height: 36px;
+  background: var(--green);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.benefit-item p {
+  color: var(--gray);
+  line-height: 1.7;
+  font-size: 0.95rem;
+  padding-top: 0.4rem;
+}
+
+/* ---- Quote placeholder ---- */
+.lp-quote-placeholder {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.lp-quote-placeholder blockquote {
+  background: var(--white);
+  border-left: 4px solid var(--yellow);
+  padding: 1.5rem 2rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.lp-quote-placeholder blockquote p {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--gray);
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+.lp-quote-placeholder blockquote cite {
+  font-size: 0.85rem;
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+/* ---- Closing CTA ---- */
+.lp-closing {
+  background: var(--black);
+  color: var(--white);
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.lp-closing-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.lp-closing h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  line-height: 1.2;
+}
+
+.lp-closing p {
+  font-size: 1.05rem;
+  opacity: 0.75;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+/* ---- Minimal footer ---- */
+.footer--minimal {
+  padding: 1.5rem 2rem;
+  background: var(--black);
+}
+
+.footer--minimal .footer-bottom {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 0;
+  border-top: none;
 }
