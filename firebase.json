@@ -1,0 +1,55 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".github/**",
+      ".agents/**",
+      "docs/**",
+      "scripts/**",
+      "netlify.toml",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false,
+    "redirects": [
+      {
+        "source": "/free-guide",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/start-here",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/about",
+        "destination": "/",
+        "type": 301
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=0, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "css/**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=300"
+          }
+        ]
+      }
+    ]
+  }
+}

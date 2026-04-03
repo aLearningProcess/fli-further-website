@@ -1,0 +1,199 @@
+name: deploy-gcp-hosting
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "*.html"
+      - "css/**"
+      - "CNAME"
+      - "firebase.json"
+      - "scripts/ci/validate-static-site.sh"
+      - ".github/workflows/deploy-gcp-hosting.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "*.html"
+      - "css/**"
+      - "CNAME"
+      - "firebase.json"
+      - "scripts/ci/validate-static-site.sh"
+      - ".github/workflows/deploy-gcp-hosting.yml"
+  workflow_dispatch:
+    inputs:
+      target_environment:
+        description: "Deployment target. Use production for live cutover or rollback."
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      deploy_ref:
+        description: "Git ref or commit SHA to deploy (blank = current trigger SHA)."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: gcp-hosting-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-site:
+    name: static-validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
+      - name: Validate static site structure
+        run: bash scripts/ci/validate-static-site.sh
+
+  deploy-staging:
+    name: deploy-staging-preview
+    needs: validate-site
+    if: >
+      needs.validate-site.result == 'success' &&
+      (
+        github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment == 'staging')
+      )
+    runs-on: ubuntu-latest
+    environment: staging
+    outputs:
+      preview_url: ${{ steps.preview.outputs.preview_url }}
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID || vars.GCP_PROJECT_ID }}
+      GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+      GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
+      - name: Validate deployment variables
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in FIREBASE_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "Missing required repository/environment variable: $key" >&2
+              missing=1
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            exit 1
+          fi
+      - name: Authenticate to Google Cloud via OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_WIF_SERVICE_ACCOUNT }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools@13
+      - name: Deploy to staging preview channel
+        id: preview
+        run: |
+          set -euo pipefail
+          channel_id="staging-${GITHUB_SHA::12}"
+          firebase hosting:channel:deploy "$channel_id" \
+            --project "$FIREBASE_PROJECT_ID" \
+            --expires 7d \
+            --non-interactive \
+            --json > preview-deploy.json
+
+          preview_url="$(jq -r '.. | .url? // empty' preview-deploy.json | head -n 1)"
+          if [[ -n "$preview_url" ]]; then
+            echo "preview_url=$preview_url" >> "$GITHUB_OUTPUT"
+            echo "Staging preview URL: $preview_url"
+          fi
+      - name: Publish staging summary
+        run: |
+          {
+            echo "### Staging deploy"
+            if [[ -n "${{ steps.preview.outputs.preview_url }}" ]]; then
+              echo "- Preview URL: ${{ steps.preview.outputs.preview_url }}"
+            else
+              echo "- Preview URL: not emitted by Firebase CLI output parser."
+            fi
+            echo "- Commit: ${{ github.sha }}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-production:
+    name: deploy-production-live
+    needs:
+      - validate-site
+      - deploy-staging
+    if: >
+      needs.validate-site.result == 'success' &&
+      (
+        github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.target_environment == 'production')
+      ) &&
+      (needs.deploy-staging.result == 'success' || needs.deploy-staging.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID || vars.GCP_PROJECT_ID }}
+      GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
+      GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
+      DEPLOY_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEPLOY_REF }}
+      - name: Validate deployment variables
+        run: |
+          set -euo pipefail
+          missing=0
+          for key in FIREBASE_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+            if [[ -z "${!key:-}" ]]; then
+              echo "Missing required repository/environment variable: $key" >&2
+              missing=1
+            fi
+          done
+          if [[ "$missing" -ne 0 ]]; then
+            exit 1
+          fi
+      - name: Authenticate to Google Cloud via OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
+          service_account: ${{ env.GCP_WIF_SERVICE_ACCOUNT }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools@13
+      - name: Deploy live hosting
+        run: |
+          set -euo pipefail
+          firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
+      - name: Publish production summary
+        run: |
+          {
+            echo "### Production deploy"
+            echo "- Project: $FIREBASE_PROJECT_ID"
+            echo "- Ref: $DEPLOY_REF"
+            echo
+            echo "### Rollback"
+            echo "- Re-run this workflow with \`target_environment=production\` and \`deploy_ref=<previous-good-sha>\`."
+            echo
+            echo "### Cache behavior"
+            echo "- \`*.html\` is configured with \`Cache-Control: public, max-age=0, must-revalidate\`."
+            echo "- \`css/**\` is configured with \`Cache-Control: public, max-age=300\`."
+            echo "- Redeploying the previous good commit restores prior content globally."
+          } >> "$GITHUB_STEP_SUMMARY"
