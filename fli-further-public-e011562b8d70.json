@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "fli-further-public",
+  "private_key_id": "e011562b8d7005bc0d6bd3bc5f6b7e33d7b71003",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCz6q46G3Lhh6Xy\nTQjf9cTICdN/hfWUgPLpquBiGy/jyOAlJyoMBYy6dwHxO7UUCeFSE9xYlqMTYO6n\n5ufr+iGPwpMiY7XzNdquk6UugwBqcXQ2nck6kXPV/CKgCjPZNqPR0YexnxQtt+fM\nnAvTOAVpkLC4anj7isuHzsV2iectzdigJSgHZL3eFHvEy9S/lzrGgNFNdb5gc/Ef\n16lPSqqqoKbrLePtre8B9e/6EB0LllDVr66EO5iur0SD/15IGPRutzjCGoMDsdLj\nyBoAuc0OHu3jFo1ib9GWcXBuVJfpZ1uwFOWpfICP7Gu6c4PHXytQFo9pO7k6R4wU\nBuXYUgM/AgMBAAECggEAD/ujKqpRlFN2nIXXaf3tU0/8J/IAlQa3jaaOdGix4mxv\n7R0DkTnU/KOh2opRVcxi5eW5x2zqY8hSqzvKEp6P6LOCWqW8/jQkjymynOUqXkph\n5pAx1jAhuDrD4K/HV16RQwx4H4FgS4dw4i5iportgClIabmbsczss83coOEzVlAy\nzgfRbBWx4nbJiyuYMdsqjIekdfEHZ9sU0q4Ai3oh+monuZLxQIXvbmU3T+or4lQC\ndhRdJN7Tf+K6RlaG3iV5NlYG3wAvbfnCOzkIaSNGFhmuOSUW8Rk3N5gYdJ6lL4+k\nUO02PqkBTVMQtRHp6MQryVLhX4461OUL1a5hSpCrcQKBgQDqEZvvinJfTpoa8SdY\ntmXq/W1Wi2K/qKvTkpRx4OcrrY7XiM0KS7DSMOwH9yAsmSaALHufglyzxgKsy39x\nX29AYq2Weexf4UCnsiJsKTHFNgJHmQZNgp7nUkU4oDk6zLGcLXol7pJzLMmfFVtr\nqQdx2FgpOzFVqBrjcFNxMAWLRQKBgQDExi0UyavXTFk5QSsm7pL/a2i9b8hcVmh+\nCPYJjFjhBSeGlHngmoyi6fxgRE0UN7ItQqBZhzFHowOPfsY56quqjsDaQYnBEmJi\npHG4pry+AAxHL/mOfIW157AKkkH6m5MEKwjjncAbAPnnoyHQEFs3xmw6+yOzBXjf\nZUCl85Q6swKBgGuV+nGo1hceftDBZU9uTvwqzhXIbXQgqBHQPvD06ex2ksBYvb3s\nunJyUBr9KMm2/y5Mw+m2Nrve2J3pz0MiFXWnpZgTpGURmPE7fHzwllLKF1QnbvEz\nh6xVcUGsy4FOUpixgoJq3N+Zh3bajzG1+JkIUsVo0q1HXkyJ9aCB7RptAoGAfjsL\njHxbSoBl9H7D6fO+RTBoPq5JAENGQSQKgdGQ6rldw83X6af7dD9acX8fW0rneHV3\nXDeH+4atsA4Jp/nNKlrtiJXmgv8CMnl/oo8EIXbyaXBzTV7AgBMjMYTl4piO1Wuu\nBiaaqDgWGOzjsg/sFHmr0KJvIlbuVZEkydDaVFUCgYEAu7DzdSEpy36eueWRwecn\nxEDLY8vi9mve2w1xvxU8Dqm/NQRxVigerPekezxJzBwmkM8h9Nv2FVhV79BNUCsu\nWcAvBlNiUrHwVZRMtORMjNfz2vNVKUJk4LJkksYaCeCsiK7adyKGahT6PtPjYMnV\nLomIugk+AA9WXqDwnx2k3Ug=\n-----END PRIVATE KEY-----\n",
+  "client_email": "fly-platform-01@fli-further-public.iam.gserviceaccount.com",
+  "client_id": "114693364259560428618",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/fly-platform-01%40fli-further-public.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -1,0 +1,48 @@
+runtime: python312
+
+handlers:
+  - url: /css
+    static_dir: css
+
+  - url: /images
+    static_dir: images
+
+  - url: /legal
+    static_files: legal.html
+    upload: legal.html
+
+  - url: /privacy
+    static_files: privacy.html
+    upload: privacy.html
+
+  - url: /refund
+    static_files: refund.html
+    upload: refund.html
+
+  - url: /terms
+    static_files: terms.html
+    upload: terms.html
+
+  - url: /legal.html
+    static_files: legal.html
+    upload: legal.html
+
+  - url: /privacy.html
+    static_files: privacy.html
+    upload: privacy.html
+
+  - url: /refund.html
+    static_files: refund.html
+    upload: refund.html
+
+  - url: /terms.html
+    static_files: terms.html
+    upload: terms.html
+
+  - url: /CNAME
+    static_files: CNAME
+    upload: CNAME
+
+  - url: /
+    static_files: index.html
+    upload: index.html

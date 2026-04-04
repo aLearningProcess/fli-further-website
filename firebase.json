@@ -4,6 +4,7 @@
     "ignore": [
       "firebase.json",
       ".firebaserc",
+<<<<<<< Updated upstream
       ".github/**",
       ".agents/**",
       "docs/**",
@@ -51,5 +52,16 @@
         ]
       }
     ]
+=======
+      ".git/**",
+      ".github/**",
+      "**/node_modules/**",
+      "**/*.log",
+      "**/*service*account*.json",
+      "**/*-mgmt-*.json"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+>>>>>>> Stashed changes
   }
 }

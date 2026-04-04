@@ -1,0 +1,18 @@
+{
+  "name": "fli-further-gcp",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspaces/fli-further-website",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "googlecloudtools.cloudcode",
+        "ms-azuretools.vscode-docker",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "postCreateCommand": "gcloud --version && firebase --version"
+}
