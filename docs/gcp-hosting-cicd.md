@@ -1,68 +1,64 @@
-# FLI Further GCP Hosting CI/CD
+# FLI Further GCP Hosting and Deploy Runbook
 
-This repository now deploys through GitHub Actions to Firebase Hosting on GCP using GitHub OIDC (no long-lived deploy keys).
+This repository is currently hosted on Google App Engine (Standard) in project `fli-further-public`.
 
-## Hosting target shape
+## Current production topology
 
-- Runtime target: Firebase Hosting in project `fli-further-public` (GCP-managed global edge).
-- Security target: GitHub OIDC -> Workload Identity Federation -> deployment service account.
-- This satisfies the "backend bucket or equivalent static hosting behind global HTTPS + CDN + managed TLS" intent through Firebase Hosting's managed edge runtime.
+- Runtime: App Engine Standard (`python312`) using static handlers from `app.yaml`.
+- Service: `default`.
+- Domain mappings:
+  - `flifurther.com`
+  - `www.flifurther.com`
+- Default host: `https://fli-further-public.uc.r.appspot.com`
 
-## Workflow
+## Source of truth files
 
-- Workflow file: `.github/workflows/deploy-gcp-hosting.yml`
-- Validation gate: `scripts/ci/validate-static-site.sh`
-- Hosting config: `firebase.json`
-- DNS cutover runbook: `docs/gcp-dns-cutover-plan.md`
+- App Engine config: `app.yaml`
+- Fallback WSGI app for non-static routes: `main.py`
+- Containerized deploy script: `scripts/deploy_gcp.sh`
+- Devcontainer wrapper script: `scripts/deploy_via_devcontainer.sh`
+- Devcontainer image definition: `.devcontainer/Dockerfile`
 
-## Promotion model
+## Deploying
 
-1. `main` push triggers `static-validation`.
-2. On success, deploy runs to `staging` preview channel (`staging-<sha>`).
-3. Production deploy is a separate job bound to the GitHub `production` environment.
-4. Require reviewers on the `production` environment in GitHub settings to enforce human approval before live deploy.
+Preferred command from repo root:
 
-## Rollback
+```bash
+./scripts/deploy_via_devcontainer.sh
+```
 
-Use GitHub Actions `workflow_dispatch`:
+The wrapper builds/uses `fli-further-devcontainer`, authenticates to GCP from the local service account key JSON in the repo root, and deploys `app.yaml`.
 
-- `target_environment=production`
-- `deploy_ref=<previous-good-commit-sha>`
+Direct command (inside the devcontainer) is:
 
-This redeploys the previous known-good static artifact set.
+```bash
+./scripts/deploy_gcp.sh
+```
 
-## Cache behavior and invalidation
+## Operational health checks
 
-- `*.html` responses are `Cache-Control: public, max-age=0, must-revalidate`.
-- `css/**` is `Cache-Control: public, max-age=300`.
-- Firebase Hosting propagates new versions globally on deploy.
-- Emergency invalidation path: redeploy the current or previous good SHA.
+Check active service split:
 
-## Required GitHub configuration
+```bash
+gcloud app services describe default --project fli-further-public --format="yaml(id,split)"
+```
 
-Set repository or environment variables:
+Check versions and traffic:
 
-- `GCP_WIF_PROVIDER` (Workload Identity Provider resource name)
-- `GCP_WIF_SERVICE_ACCOUNT` (deployment service account email)
-- `FIREBASE_PROJECT_ID` (or fallback `GCP_PROJECT_ID`)
+```bash
+gcloud app versions list --service=default --project fli-further-public --format="table(id,version.createTime,traffic_split,servingStatus)"
+```
 
-Recommended environment protection:
+Check recent App Engine errors:
 
-- `staging`: optional reviewer gate.
-- `production`: required reviewers + restricted branch/tag deployment rules.
+```bash
+gcloud logging read "resource.type=gae_app AND resource.labels.module_id=default AND severity>=ERROR" \
+  --project=fli-further-public \
+  --freshness=60m \
+  --limit=50 \
+  --format="table(timestamp,severity,resource.labels.version_id,textPayload)"
+```
 
-## Security dependency
+## Notes on legacy workflow
 
-Production use is gated on credential containment work in [FLI-78](/FLI/issues/FLI-78):
-
-- do not add or use static service-account keys for deployment
-- do not mark production cutover complete until exposed credentials are revoked and replaced
-- OIDC + WIF is the only accepted deployment auth path for this repo
-
-## Netlify decommission checklist
-
-- Removed workflow `.github/workflows/deploy.yml`.
-- Removed `netlify.toml`.
-- Remove stale GitHub secrets after cutover:
-  - `NETLIFY_SITE_ID`
-  - `NETLIFY_AUTH_TOKEN`
+`.github/workflows/deploy-gcp-hosting.yml` still describes a Firebase Hosting OIDC flow. Current production hosting is App Engine from local/devcontainer deploy scripts, not that Firebase workflow.

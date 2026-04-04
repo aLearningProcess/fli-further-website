@@ -1,61 +1,39 @@
-# FLI Further DNS Cutover Plan (GCP Hosting)
+# FLI Further DNS Configuration (Current State)
 
-This runbook covers DNS cutover for `flifurther.com` and `www.flifurther.com` to the GCP hosting path implemented in this repository.
+This file documents the active DNS configuration for App Engine hosting.
 
-## Scope and target
+## Active web DNS records
 
-- Scope: web traffic for apex (`flifurther.com`) and `www`.
-- Target platform: Firebase Hosting in GCP project `fli-further-public`.
-- Non-web DNS records must remain unchanged (mail/auth/verification records).
+For `flifurther.com` (apex):
 
-## Dependency gate
+- `A` -> `216.239.32.21`
+- `A` -> `216.239.34.21`
+- `A` -> `216.239.36.21`
+- `A` -> `216.239.38.21`
+- `AAAA` -> `2001:4860:4802:32::15`
+- `AAAA` -> `2001:4860:4802:34::15`
+- `AAAA` -> `2001:4860:4802:36::15`
+- `AAAA` -> `2001:4860:4802:38::15`
 
-Do not execute production cutover until [FLI-78](/FLI/issues/FLI-78) is resolved (exposed credential containment and replacement).
+For `www.flifurther.com`:
 
-## Current DNS baseline (observed 2026-04-02 America/New_York)
+- `CNAME` -> `ghs.googlehosted.com.`
 
-- `flifurther.com A` -> `3.33.130.190`, `15.197.148.33`
-- `www.flifurther.com CNAME` -> `flifurther.com.`
-- `flifurther.com MX` -> Google Workspace (`aspmx.l.google.com` + alt hosts)
-- `flifurther.com TXT` includes SPF and Google site verification
-- Nameservers -> `ns57.domaincontrol.com`, `ns58.domaincontrol.com`
+## Verification commands
 
-Current live web response at apex/`www` serves a JavaScript redirect to `/lander`, and `/lander` returns `403`. This differs from repository content.
+```bash
+dig +short flifurther.com A
+dig +short flifurther.com AAAA
+dig +short www.flifurther.com CNAME
+```
 
-## Cutover decision required before DNS change
+Expected App Engine custom domain mappings:
 
-Choose one and document it in the release note:
+```bash
+gcloud app domain-mappings describe flifurther.com --project fli-further-public --format="yaml(id,resourceRecords,sslSettings)"
+gcloud app domain-mappings describe www.flifurther.com --project fli-further-public --format="yaml(id,resourceRecords,sslSettings)"
+```
 
-1. Serve repo `index.html` at `/` after cutover (recommended baseline).
-2. Preserve redirect behavior to `/lander` by adding an explicit hosting redirect/rewrite before production deploy.
+## TLS note
 
-## DNS change plan
-
-1. Export current zone records from registrar DNS UI for rollback reference.
-2. In Firebase Hosting custom domain setup, add `flifurther.com` and `www.flifurther.com`.
-3. Apply exactly the DNS records Firebase provides for apex/`www` (ownership TXT + A/AAAA/CNAME as prompted).
-4. Keep existing MX/TXT/other non-web records unchanged.
-5. Use low TTL during change window where registrar permits.
-
-## Verification checklist
-
-After DNS changes propagate:
-
-- `dig +short flifurther.com A` resolves to Firebase-provided apex target.
-- `dig +short www.flifurther.com CNAME` or A/AAAA resolves per Firebase instructions.
-- `curl -sS https://flifurther.com/` returns expected homepage or approved redirect behavior.
-- `curl -sS https://www.flifurther.com/` matches apex behavior.
-- `dig +short flifurther.com MX` remains Google Workspace values.
-- `dig +short flifurther.com TXT` still includes required SPF/verification entries.
-- TLS certificate status in Firebase domain panel is `Connected`.
-
-## Rollback
-
-If cutover fails:
-
-1. Reapply pre-cutover apex and `www` web records:
-   - `flifurther.com A`: `3.33.130.190`, `15.197.148.33`
-   - `www.flifurther.com CNAME`: `flifurther.com.`
-2. Re-validate apex and `www` responses.
-3. Leave non-web records unchanged.
-4. Capture incident details and attach to the issue thread before retrying.
+Managed certificates are provisioned by Google after DNS is correct. If HTTPS fails immediately after record changes, wait for certificate provisioning and recheck `sslSettings`.
