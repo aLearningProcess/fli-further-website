@@ -4,46 +4,154 @@ entrypoint: gunicorn -b :$PORT main:app
 handlers:
   - url: /css
     static_dir: css
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /images
     static_dir: images
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /legal
     static_files: legal.html
     upload: legal.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /privacy
     static_files: privacy.html
     upload: privacy.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /refund
     static_files: refund.html
     upload: refund.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /terms
     static_files: terms.html
     upload: terms.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /legal.html
     static_files: legal.html
     upload: legal.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /privacy.html
     static_files: privacy.html
     upload: privacy.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /refund.html
     static_files: refund.html
     upload: refund.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /terms.html
     static_files: terms.html
     upload: terms.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /CNAME
     static_files: CNAME
     upload: CNAME
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"
 
   - url: /
     static_files: index.html
     upload: index.html
+    secure: always
+    redirect_http_response_code: 301
+    http_headers:
+      Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options: nosniff
+      X-Frame-Options: DENY
+      Referrer-Policy: strict-origin-when-cross-origin
+      Permissions-Policy: camera=(), microphone=(), geolocation=()
+      Content-Security-Policy: "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"

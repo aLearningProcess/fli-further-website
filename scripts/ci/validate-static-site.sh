@@ -4,8 +4,9 @@ set -euo pipefail
 
 required_files=(
   CNAME
+  app.yaml
+  main.py
   css/style.css
-  firebase.json
   index.html
   legal.html
   privacy.html
@@ -60,12 +61,28 @@ if grep -R -n -E 'NETLIFY_(SITE_ID|AUTH_TOKEN)|netlify/actions/cli' .github/work
   exit 1
 fi
 
-jq -e '.' firebase.json >/dev/null
+if git ls-files | xargs grep -n -E '^(<<<<<<<|=======|>>>>>>>)' >/dev/null 2>&1; then
+  echo "Merge conflict markers detected in tracked files." >&2
+  exit 1
+fi
 
-for source_path in /free-guide /start-here /about; do
-  jq -e --arg source_path "$source_path" \
-    '.hosting.redirects[] | select(.source == $source_path and .destination == "/" and .type == 301)' \
-    firebase.json >/dev/null
+if [[ -f firebase.json ]]; then
+  jq -e '.' firebase.json >/dev/null
+fi
+
+for required_setting in "secure: always" "redirect_http_response_code: 301" "Strict-Transport-Security" "Content-Security-Policy"; do
+  if ! grep -q "$required_setting" app.yaml; then
+    echo "Missing App Engine security setting in app.yaml: $required_setting" >&2
+    exit 1
+  fi
 done
+
+if [[ -f firebase.json ]]; then
+  for source_path in /free-guide /start-here /about; do
+    jq -e --arg source_path "$source_path" \
+      '.hosting.redirects[] | select(.source == $source_path and .destination == "/" and .type == 301)' \
+      firebase.json >/dev/null
+  done
+fi
 
 echo "Static validation passed."

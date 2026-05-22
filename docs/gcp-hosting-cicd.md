@@ -29,6 +29,8 @@ Preferred command from repo root:
 
 The wrapper builds/uses `fli-further-devcontainer`, authenticates to GCP from the local service account key JSON in the repo root, and deploys `app.yaml`.
 
+Primary CI/CD path is GitHub Actions workflow `.github/workflows/deploy-gcp-hosting.yml`, which uses OIDC federation (`google-github-actions/auth@v2`) and deploys App Engine versions without long-lived JSON keys.
+
 Direct command (inside the devcontainer) is:
 
 ```bash
@@ -61,4 +63,4 @@ gcloud logging read "resource.type=gae_app AND resource.labels.module_id=default
 
 ## Notes on legacy workflow
 
-`.github/workflows/deploy-gcp-hosting.yml` still describes a Firebase Hosting OIDC flow. Current production hosting is App Engine from local/devcontainer deploy scripts, not that Firebase workflow.
+Legacy Netlify workflows have been retired. The active workflow `.github/workflows/deploy-gcp-hosting.yml` deploys App Engine for both staging preview versions and production promotions.

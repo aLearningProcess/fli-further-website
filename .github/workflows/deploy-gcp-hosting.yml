@@ -5,20 +5,24 @@ on:
     branches:
       - main
     paths:
+      - "app.yaml"
+      - "main.py"
       - "*.html"
       - "css/**"
+      - "images/**"
       - "CNAME"
-      - "firebase.json"
       - "scripts/ci/validate-static-site.sh"
       - ".github/workflows/deploy-gcp-hosting.yml"
   push:
     branches:
       - main
     paths:
+      - "app.yaml"
+      - "main.py"
       - "*.html"
       - "css/**"
+      - "images/**"
       - "CNAME"
-      - "firebase.json"
       - "scripts/ci/validate-static-site.sh"
       - ".github/workflows/deploy-gcp-hosting.yml"
   workflow_dispatch:
@@ -70,7 +74,7 @@ jobs:
     outputs:
       preview_url: ${{ steps.preview.outputs.preview_url }}
     env:
-      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID || vars.GCP_PROJECT_ID }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
       GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
     steps:
@@ -82,7 +86,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for key in FIREBASE_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+          for key in GCP_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
             if [[ -z "${!key:-}" ]]; then
               echo "Missing required repository/environment variable: $key" >&2
               missing=1
@@ -96,38 +100,32 @@ jobs:
         with:
           workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
           service_account: ${{ env.GCP_WIF_SERVICE_ACCOUNT }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          node-version: "22"
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools@13
-      - name: Deploy to staging preview channel
+          project_id: ${{ env.GCP_PROJECT_ID }}
+      - name: Deploy non-promoted App Engine version
         id: preview
         run: |
           set -euo pipefail
-          channel_id="staging-${GITHUB_SHA::12}"
-          firebase hosting:channel:deploy "$channel_id" \
-            --project "$FIREBASE_PROJECT_ID" \
-            --expires 7d \
-            --non-interactive \
-            --json > preview-deploy.json
+          version="stg-${GITHUB_SHA::12}"
+          gcloud app deploy app.yaml \
+            --project "$GCP_PROJECT_ID" \
+            --version "$version" \
+            --no-promote \
+            --quiet
 
-          preview_url="$(jq -r '.. | .url? // empty' preview-deploy.json | head -n 1)"
-          if [[ -n "$preview_url" ]]; then
-            echo "preview_url=$preview_url" >> "$GITHUB_OUTPUT"
-            echo "Staging preview URL: $preview_url"
-          fi
+          default_hostname="$(gcloud app describe --project "$GCP_PROJECT_ID" --format='value(defaultHostname)')"
+          preview_url="https://${version}-dot-default-dot-${default_hostname}"
+          echo "preview_url=$preview_url" >> "$GITHUB_OUTPUT"
+          echo "Staging preview URL: $preview_url"
       - name: Publish staging summary
         run: |
           {
             echo "### Staging deploy"
-            if [[ -n "${{ steps.preview.outputs.preview_url }}" ]]; then
-              echo "- Preview URL: ${{ steps.preview.outputs.preview_url }}"
-            else
-              echo "- Preview URL: not emitted by Firebase CLI output parser."
-            fi
+            echo "- Preview URL: ${{ steps.preview.outputs.preview_url }}"
             echo "- Commit: ${{ github.sha }}"
+            echo "- Platform: App Engine (non-promoted version)"
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy-production:
@@ -145,7 +143,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID || vars.GCP_PROJECT_ID }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
       GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
       DEPLOY_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
@@ -158,7 +156,7 @@ jobs:
         run: |
           set -euo pipefail
           missing=0
-          for key in FIREBASE_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+          for key in GCP_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
             if [[ -z "${!key:-}" ]]; then
               echo "Missing required repository/environment variable: $key" >&2
               missing=1
@@ -172,28 +170,26 @@ jobs:
         with:
           workload_identity_provider: ${{ env.GCP_WIF_PROVIDER }}
           service_account: ${{ env.GCP_WIF_SERVICE_ACCOUNT }}
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
         with:
-          node-version: "22"
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools@13
-      - name: Deploy live hosting
+          project_id: ${{ env.GCP_PROJECT_ID }}
+      - name: Deploy and promote live App Engine version
         run: |
           set -euo pipefail
-          firebase deploy --only hosting --project "$FIREBASE_PROJECT_ID" --non-interactive
+          gcloud app deploy app.yaml --project "$GCP_PROJECT_ID" --quiet
       - name: Publish production summary
         run: |
           {
             echo "### Production deploy"
-            echo "- Project: $FIREBASE_PROJECT_ID"
+            echo "- Platform: App Engine"
+            echo "- Project: $GCP_PROJECT_ID"
             echo "- Ref: $DEPLOY_REF"
             echo
             echo "### Rollback"
             echo "- Re-run this workflow with \`target_environment=production\` and \`deploy_ref=<previous-good-sha>\`."
             echo
-            echo "### Cache behavior"
-            echo "- \`*.html\` is configured with \`Cache-Control: public, max-age=0, must-revalidate\`."
-            echo "- \`css/**\` is configured with \`Cache-Control: public, max-age=300\`."
+            echo "### Security expectations"
+            echo "- App Engine handlers enforce HTTPS and include response security headers from \`app.yaml\`."
             echo "- Redeploying the previous good commit restores prior content globally."
           } >> "$GITHUB_STEP_SUMMARY"
