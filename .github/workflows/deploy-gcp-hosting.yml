@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
       - name: Validate static site structure
@@ -74,19 +74,23 @@ jobs:
     outputs:
       preview_url: ${{ steps.preview.outputs.preview_url }}
     env:
-      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || vars.FIREBASE_PROJECT_ID }}
       GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
       GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
     steps:
       - name: Checkout target ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
       - name: Validate deployment variables
         run: |
           set -euo pipefail
           missing=0
-          for key in GCP_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+          if [[ -z "${GCP_PROJECT_ID:-}" ]]; then
+            echo "Missing required repository/environment variable: GCP_PROJECT_ID (or legacy FIREBASE_PROJECT_ID)" >&2
+            missing=1
+          fi
+          for key in GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
             if [[ -z "${!key:-}" ]]; then
               echo "Missing required repository/environment variable: $key" >&2
               missing=1
@@ -143,20 +147,24 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     env:
-      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID || vars.FIREBASE_PROJECT_ID }}
       GCP_WIF_PROVIDER: ${{ vars.GCP_WIF_PROVIDER }}
       GCP_WIF_SERVICE_ACCOUNT: ${{ vars.GCP_WIF_SERVICE_ACCOUNT }}
       DEPLOY_REF: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
     steps:
       - name: Checkout target ref
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ env.DEPLOY_REF }}
       - name: Validate deployment variables
         run: |
           set -euo pipefail
           missing=0
-          for key in GCP_PROJECT_ID GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
+          if [[ -z "${GCP_PROJECT_ID:-}" ]]; then
+            echo "Missing required repository/environment variable: GCP_PROJECT_ID (or legacy FIREBASE_PROJECT_ID)" >&2
+            missing=1
+          fi
+          for key in GCP_WIF_PROVIDER GCP_WIF_SERVICE_ACCOUNT; do
             if [[ -z "${!key:-}" ]]; then
               echo "Missing required repository/environment variable: $key" >&2
               missing=1
