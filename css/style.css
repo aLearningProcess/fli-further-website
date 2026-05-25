@@ -12,7 +12,7 @@
   --off-white: #F8F9FA;
   --yellow: #F0C808;
   --yellow-hover: #D4B007;
-  --gray: #6C757D;
+  --gray: #495057;
   --gray-light: #E9ECEF;
 }
 
@@ -40,6 +40,15 @@ a {
   text-decoration: none;
 }
 
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.nav-toggle:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
 img {
   max-width: 100%;
   display: block;
@@ -59,6 +68,26 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.75rem;
+  z-index: 200;
+  padding: 0.75rem 1rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: 4px;
+  transform: translateY(-180%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
 }
 
 .nav-logo {
@@ -413,7 +442,7 @@ img {
 }
 
 .footer-links a {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
   transition: color 0.2s;
 }
@@ -431,7 +460,7 @@ img {
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* ---- Policy Pages ---- */
@@ -942,7 +971,7 @@ img {
 }
 
 .footer-bottom a {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.78);
   transition: color 0.2s;
 }
 
