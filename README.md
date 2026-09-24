@@ -1,6 +1,6 @@
 # fli-further-website
 
-Static website for FLI Further, deployed on Google App Engine in project `fli-further-public`.
+Static website for FLI Further, operated by Rocket Fuel, LLC and deployed on Google App Engine in project `fli-further-public`.
 
 ## Quick deploy
 
