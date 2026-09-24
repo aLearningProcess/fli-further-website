@@ -1,6 +1,14 @@
 def app(environ, start_response):
-    status = "404 Not Found"
-    body = b"Not Found"
+    redirect_paths = {"/index.html", "/free-guide", "/start-here", "/about"}
+    if environ.get("PATH_INFO", "") in redirect_paths:
+        status = "301 Moved Permanently"
+        body = b"Moved Permanently"
+        location = "/"
+    else:
+        status = "404 Not Found"
+        body = b"Not Found"
+        location = None
+
     headers = [
         ("Content-Type", "text/plain; charset=utf-8"),
         ("Content-Length", str(len(body))),
@@ -11,5 +19,8 @@ def app(environ, start_response):
         ("Permissions-Policy", "camera=(), microphone=(), geolocation=()"),
         ("Content-Security-Policy", "default-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self'; upgrade-insecure-requests"),
     ]
+    if location is not None:
+        headers.append(("Location", location))
+
     start_response(status, headers)
     return [body]
