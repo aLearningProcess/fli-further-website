@@ -13,6 +13,13 @@
       "**/.*",
       "**/node_modules/**",
       "**/*.log",
+      "**/*.md",
+      "**/*.py",
+      "**/*.sh",
+      "**/*.yaml",
+      ".devcontainer/**",
+      ".vscode/**",
+      "test-results/**",
       "**/*service*account*.json",
       "**/*-mgmt-*.json"
     ],

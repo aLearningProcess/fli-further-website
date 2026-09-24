@@ -2,21 +2,15 @@
 set -euo pipefail
 
 PROJECT_ID="fli-further-public"
-KEY_FILE="${1:-}"
-REGION="${2:-us-central}"
-DOMAIN_ROOT="${3:-flifurther.com}"
+REGION="${1:-us-central}"
+DOMAIN_ROOT="${2:-flifurther.com}"
 DOMAIN_WWW="www.${DOMAIN_ROOT}"
 
-if [[ -z "$KEY_FILE" ]]; then
-  KEY_FILE="$(find . -maxdepth 1 -type f -name '*.json' ! -name 'firebase.json' | head -n 1 | sed 's#^\./##')"
-fi
-
-if [[ ! -f "$KEY_FILE" ]]; then
-  echo "Missing key file: $KEY_FILE" >&2
+if ! gcloud auth list --filter=status:ACTIVE --format='value(account)' | grep -q .; then
+  echo "No active gcloud account. Run 'gcloud auth login' before deploying." >&2
   exit 1
 fi
 
-gcloud auth activate-service-account --key-file="$KEY_FILE" --quiet >/dev/null
 gcloud config set project "$PROJECT_ID" --quiet >/dev/null
 
 if ! gcloud app describe --project "$PROJECT_ID" >/dev/null 2>&1; then

@@ -5,8 +5,7 @@ RUN apt-get update \
     && curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
     && echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
     && apt-get update \
-    && apt-get install -y google-cloud-cli \
-    && npm install -g firebase-tools \
+    && apt-get install -y google-cloud-cli=541.0.0-0 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

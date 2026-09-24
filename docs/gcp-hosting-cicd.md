@@ -27,7 +27,9 @@ Preferred command from repo root:
 ./scripts/deploy_via_devcontainer.sh
 ```
 
-The wrapper builds/uses `fli-further-devcontainer`, authenticates to GCP from the local service account key JSON in the repo root, and deploys `app.yaml`.
+The wrapper builds/uses `fli-further-devcontainer`. Local deployments use the active
+`gcloud` account; authenticate first with `gcloud auth login`. The script deploys
+`app.yaml` without reading service-account key files from the repository.
 
 Primary CI/CD path is GitHub Actions workflow `.github/workflows/deploy-gcp-hosting.yml`, which uses OIDC federation (`google-github-actions/auth@v2`) and deploys App Engine versions without long-lived JSON keys.
 
@@ -36,6 +38,9 @@ Direct command (inside the devcontainer) is:
 ```bash
 ./scripts/deploy_gcp.sh
 ```
+
+The Firebase configuration is retained only as a legacy redirect configuration. No
+Firebase deploy command is used by the active workflow or deployment scripts.
 
 ## Operational health checks
 

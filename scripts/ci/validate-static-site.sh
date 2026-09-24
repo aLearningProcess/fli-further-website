@@ -5,6 +5,7 @@ set -euo pipefail
 required_files=(
   CNAME
   app.yaml
+  requirements.txt
   main.py
   css/style.css
   index.html
@@ -76,6 +77,11 @@ for required_setting in "secure: always" "redirect_http_response_code: 301" "Str
     exit 1
   fi
 done
+
+if ! grep -q '^gunicorn==[0-9]' requirements.txt; then
+  echo "Gunicorn must be explicitly pinned in requirements.txt." >&2
+  exit 1
+fi
 
 if [[ -f firebase.json ]]; then
   for source_path in /free-guide /start-here /about; do
