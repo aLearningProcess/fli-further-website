@@ -50,7 +50,7 @@ concurrency:
 
 jobs:
   validate-site:
-    name: static-validation
+    name: static-validation (deploy)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout target ref
