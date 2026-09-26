@@ -1,0 +1,65 @@
+# claude — respond to `@claude` mentions on issues and pull requests (OA-9 D8, layer 3).
+#
+# WHY. Owner ruling 2026-09-26 (TRADING/coordination/OWNER-ACTION-REGISTER.md, row OA-9, applies
+# estate-wide): the owner reviews merged PRs retroactively. When that review finds something, the
+# owner (or the orchestrator) writes `@claude <instruction>` on the PR or issue and Claude answers,
+# or pushes fix commits to the PR's own branch as `claude[bot]`. It cannot merge: `main` requires a
+# pull request and a green `static-validation` check, and this job holds no merge tool.
+#
+# PUBLIC REPO CAVEAT: repository secrets are withheld from fork pull request runs, so this only
+# answers `@claude` on same-repository branches and on issues, not on pull requests opened from a
+# fork.
+#
+# NOT ADOPTED, ON PURPOSE: `@claude` on an ISSUE opening a new PR from Actions. Issue execution in
+# this estate goes through the orchestrator's worktrees, locks and issue-authority chain; a
+# bot-opened PR bypasses all of that. Use `@claude` on issues for answers and analysis; use it on
+# PRs for fixes to that PR's branch.
+#
+# AUTH: `CLAUDE_CODE_OAUTH_TOKEN` (see claude-code-review.yml for the alternative).
+# WHO TRIGGERS: a human with write access whose comment contains the whole word `@claude`; bot
+# actors are rejected unless listed in allowed_bots (none are).
+
+name: claude
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # No `prompt`: interactive mode, Claude answers the mention. Tool surface stays the
+          # action's default for interactive mode plus an explicit ceiling on turns; merge/approve
+          # are not reachable (no gh merge tool granted, and main is server-protected regardless).
+          claude_args: '--max-turns 40'
