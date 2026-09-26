@@ -1,0 +1,26 @@
+name: static-validation
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: static-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-validation:
+    name: static-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_ref || github.sha }}
+      - name: Validate static site structure
+        run: bash scripts/ci/validate-static-site.sh
