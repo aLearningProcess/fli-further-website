@@ -21,7 +21,8 @@
 #
 # WHO TRIGGERS: only pull_request events raised by a human actor with write access (the action's own
 # check). `claude[bot]`'s own pushes cannot re-trigger this (bot actors are rejected unless listed in
-# allowed_bots -- deliberately not listed). Drafts are skipped by the review skill itself.
+# allowed_bots; claude[bot] and dependabot[bot] are listed so their pushes/PRs get reviewed instead of
+# failing the check). Drafts are skipped by the review skill itself.
 #
 # COST: one review per PR event on the owner's subscription plus hosted-runner minutes; capped by
 # timeout-minutes and --max-turns.
@@ -54,6 +55,13 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Bot actors the action may run for. Without this the action FAILS the job for any
+          # non-human actor (claude-code-action src/github/validation/actor.ts), so a claude[bot]
+          # fix push from claude.yml, or a dependabot PR, would turn this check red. Matching
+          # ignores case and the [bot] suffix. Added 2026-09-26 when `review` became the required
+          # status check on repositories with no other CI (OA-9). Not "*": on a public repo that
+          # would let any external App invoke this action.
+          allowed_bots: "claude,dependabot"
           plugin_marketplaces: "https://github.com/anthropics/claude-code.git"
           plugins: "code-review@claude-code-plugins"
           prompt: "/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
@@ -68,6 +76,11 @@ jobs:
           # show_full_output is on so the retro reviewer can see what the reviewer actually did;
           # this is a public repository, so no secret values are at risk of leaking through it.
           show_full_output: true
+          # Skill added 2026-09-26: the run log's permission_denials showed the
+          # code-review skill itself DENIED on every run; --append-system-prompt added
+          # the same day because a background subagent dies when the Action's turn ends
+          # (smoke pass w16: success conclusion, nothing posted).
           claude_args: >-
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Agent,Read,Grep,Glob"
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Agent,Skill,Read,Grep,Glob"
             --max-turns 40
+            --append-system-prompt "This run is a non-interactive GitHub Action: it ends the moment your turn ends, and any subagent still running at that moment is lost with its work. Launch every Agent with run_in_background set to false and wait for its result before continuing. Do not end your turn until every finding is posted as an inline comment on the pull request, or one summary comment says there are no findings."
