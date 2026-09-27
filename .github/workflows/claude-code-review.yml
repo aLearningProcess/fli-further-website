@@ -48,6 +48,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - id: t0
+        name: Record job start (the non-empty gate below counts only comments posted after this)
+        run: echo "since=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v6
         with:
           fetch-depth: 1
@@ -84,3 +88,30 @@ jobs:
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(gh pr list:*),Bash(gh issue view:*),Bash(gh issue list:*),Bash(gh search:*),Agent,Skill,Read,Grep,Glob"
             --max-turns 40
             --append-system-prompt "This run is a non-interactive GitHub Action: it ends the moment your turn ends, and any subagent still running at that moment is lost with its work. Launch every Agent with run_in_background set to false and wait for its result before continuing. Do not end your turn until every finding is posted as an inline comment on the pull request, or one summary comment says there are no findings."
+
+      # Non-empty gate, added 2026-09-27 (OA-9). On 2026-09-26 this job reported success on
+      # 8 of 10 estate repos while posting nothing (Skill denied, background subagents lost).
+      # That cause is fixed; this step makes the SHAPE impossible: a review run that posts no
+      # inline comment and no summary comment is a failure, not a pass. Two legitimate-silence
+      # cases are skipped: draft PRs (the review skill skips drafts) and PRs that change this
+      # workflow file (the action skips itself there by design, "workflow validation").
+      - name: Fail when the review posted nothing
+        if: ${{ !cancelled() && github.event.pull_request.draft == false }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          SINCE: ${{ steps.t0.outputs.since }}
+        run: |
+          set -u
+          if gh pr diff "$PR" -R "$REPO" --name-only | grep -qx '.github/workflows/claude-code-review.yml'; then
+            echo "This PR changes the review workflow itself; the action skips such PRs by design. Gate skipped."
+            exit 0
+          fi
+          inline=$(gh api "repos/$REPO/pulls/$PR/comments" --paginate --jq "[.[] | select(.user.login == \"claude[bot]\" and .created_at >= \"$SINCE\")] | length")
+          summary=$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq "[.[] | select(.user.login == \"claude[bot]\" and .created_at >= \"$SINCE\")] | length")
+          echo "claude[bot] comments since $SINCE: inline=$inline summary=$summary"
+          if [ "$((inline + summary))" -eq 0 ]; then
+            echo "::error::claude-code-review posted nothing on PR #$PR — treated as a failed review, not a pass (OA-9, 2026-09-27)"
+            exit 1
+          fi
