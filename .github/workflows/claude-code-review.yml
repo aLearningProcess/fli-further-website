@@ -52,7 +52,7 @@ jobs:
         name: Record job start (the non-empty gate below counts only comments posted after this)
         run: echo "since=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 1
 
