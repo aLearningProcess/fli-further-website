@@ -21,7 +21,10 @@
       ".vscode/**",
       "test-results/**",
       "**/*service*account*.json",
-      "**/*-mgmt-*.json"
+      "**/*-mgmt-*.json",
+      "**/*.json",
+      "**/*.pem",
+      "fli-further-public-*.json"
     ],
     "cleanUrls": true,
     "trailingSlash": false,

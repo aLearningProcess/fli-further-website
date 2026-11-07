@@ -17,3 +17,9 @@
 __pycache__/
 # Ignored by the build system
 /setup.cfg
+
+# Never upload credentials or private keys
+fli-further-public-*.json
+*service*account*.json
+*-mgmt-*.json
+*.pem
